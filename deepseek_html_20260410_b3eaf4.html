@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Photo Gallery · View & Add Memories</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Inter', 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f7f9fc 0%, #eef2f5 100%);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+
+        /* container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* header */
+        .gallery-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .gallery-header h1 {
+            font-size: 2.4rem;
+            background: linear-gradient(135deg, #1e2b3c, #2c4c6e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            font-weight: 700;
+        }
+
+        .gallery-header p {
+            color: #4a627a;
+            margin-top: 0.5rem;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        /* grid cards */
+        .persons-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0 3rem;
+        }
+
+        .person-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(2px);
+            border-radius: 2rem;
+            width: 260px;
+            overflow: hidden;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.15);
+            transition: transform 0.25s ease, box-shadow 0.3s;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .person-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 28px 40px -16px rgba(0, 0, 0, 0.25);
+            background: white;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 230px;
+            background-color: #cfdfed;
+            object-fit: cover;
+            transition: all 0.2s;
+            display: block;
+        }
+
+        .card-info {
+            padding: 1.2rem 1rem 1.4rem;
+            text-align: center;
+        }
+
+        .card-info h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e2f3f;
+            margin-bottom: 0.3rem;
+        }
+
+        .photo-badge {
+            display: inline-block;
+            background: #e9edf2;
+            padding: 0.25rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2c5f8a;
+            margin-top: 8px;
+        }
+
+        /* MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(10, 20, 30, 0.85);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.2s, opacity 0.2s;
+        }
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-container {
+            background: #ffffff;
+            border-radius: 2rem;
+            width: 90%;
+            max-width: 850px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.4);
+            animation: modalPop 0.25s ease-out;
+            padding: 1.5rem 1.8rem 2rem;
+            position: relative;
+        }
+
+        @keyframes modalPop {
+            from {
+                transform: scale(0.96);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 2px solid #eef2f8;
+            padding-bottom: 0.8rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .modal-header h2 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: #1e3b4f;
+            letter-spacing: -0.3px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #7f8c9a;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .close-modal:hover {
+            color: #d9534f;
+        }
+
+        /* photo grid inside modal */
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.2rem;
+            margin: 1.5rem 0 2rem;
+        }
+
+        .photo-item {
+            background: #f8fafc;
+            border-radius: 1.2rem;
+            overflow: hidden;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+            aspect-ratio: 1 / 1;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.25s;
+        }
+
+        .photo-item:hover img {
+            transform: scale(1.02);
+        }
+
+        .empty-photos {
+            text-align: center;
+            padding: 2rem;
+            background: #f1f5f9;
+            border-radius: 1.8rem;
+            color: #5d6f83;
+            font-weight: 500;
+        }
+
+        /* add photo section */
+        .add-photo-section {
+            background: #f3f6fb;
+            border-radius: 1.5rem;
+            padding: 1.3rem 1.2rem;
+            margin-top: 0.8rem;
+            border: 1px solid #e2e9f2;
+        }
+
+        .add-photo-section h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f4a6e;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .link-input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .link-input-group input {
+            flex: 3;
+            padding: 12px 16px;
+            border-radius: 60px;
+            border: 1px solid #cbdde9;
+            background: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .link-input-group input:focus {
+            border-color: #2c7cb6;
+            box-shadow: 0 0 0 3px rgba(44,124,182,0.2);
+        }
+
+        .add-btn {
+            background: #2c7cb6;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 60px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .add-btn:hover {
+            background: #1f6395;
+            transform: scale(0.97);
+        }
+
+        .feedback-msg {
+            margin-top: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #2c6b2f;
+            background: #e0f2e6;
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+        }
+
+        .error-msg {
+            background: #ffe6e5;
+            color: #bc5a4c;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            font-size: 0.8rem;
+            color: #7c8b9c;
+        }
+
+        @media (max-width: 650px) {
+            body {
+                padding: 1rem;
+            }
+            .modal-container {
+                padding: 1.2rem;
+            }
+            .photos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+            .card-img {
+                height: 190px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="gallery-header">
+        <h1>📸  Memory Gallery</h1>
+        <p>✨ Click on any card → view all photos & add new Google Drive images ✨</p>
+    </div>
+
+    <div id="personsGrid" class="persons-grid">
+        <!-- dynamic cards injected here -->
+    </div>
+    <footer>
+        💡 Tip: Paste any Google Drive share link (file/d/.../view) → instantly adds new photo to that person.
+    </footer>
+</div>
+
+<!-- Modal structure -->
+<div id="photoModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2 id="modalPersonName">Person Name</h2>
+            <button class="close-modal" id="closeModalBtn">&times;</button>
+        </div>
+        <div id="modalPhotosContainer" class="photos-grid">
+            <!-- images will be injected -->
+        </div>
+        <div class="add-photo-section">
+            <h4>➕ Add new photo (Google Drive link)</h4>
+            <div class="link-input-group">
+                <input type="text" id="newPhotoLink" placeholder="Paste Google Drive share link ..." autocomplete="off">
+                <button id="addPhotoBtn" class="add-btn">➕ Add Photo</button>
+            </div>
+            <div id="modalFeedback" style="margin-top: 10px;"></div>
+            <p style="font-size: 0.7rem; color: #6c7e91; margin-top: 8px;">✔ Supports: https://drive.google.com/file/d/FILE_ID/view...  (image files best)</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ----------------------------- INITIAL DATA (based on provided links) -----------------------------
+    // Helper: extract google drive file ID from any drive sharing link
+    function extractDriveFileId(url) {
+        if (!url) return null;
+        // Pattern for /file/d/XXXXX/view
+        const regex = /\/file\/d\/([a-zA-Z0-9_-]+)(?:\/|$|\?)/;
+        const match = url.match(regex);
+        if (match && match[1]) return match[1];
+        // also check if the url is just id (no slashes)
+        const idPattern = /^[a-zA-Z0-9_-]{25,}$/;
+        if (idPattern.test(url.trim())) return url.trim();
+        // if it contains id= parameter
+        const idParam = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (idParam && idParam[1]) return idParam[1];
+        return null;
+    }
+
+    // Build direct image embed URL
+    function getDriveImageUrl(fileId) {
+        if (!fileId) return '';
+        return `https://drive.google.com/uc?export=view&id=${fileId}`;
+    }
+
+    // Default persons structure (IDs extracted from given links)
+    const defaultPersons = [
+        {
+            id: "jagwani",
+            name: "Jagwani Sir",
+            photos: ["1yq4n2BTFDEDM0zBLXnyfCpkDpfwMmMQ7"]   // provided single photo
+        },
+        {
+            id: "aman",
+            name: "Aman",
+            photos: [
+                "15TnhAjU1xXl7bY0f47mugwzotRuyLHKC",
+                "1G_ASIGCMyN4lgYzrKWO-I8vbW18BOOBy",
+                "1lKoNFj5s3c16d87xKWhmg85czkNlnnqJ"
+            ]
+        },
+        {
+            id: "shubham",
+            name: "Shubham",
+            photos: [
+                "1vEgbA006uDEYvY3KpvRf0f5nl6gGmu7a",
+                "1L_dXPB-2c_vH4HeUnUhNNMhJPXUc5_GP"
+            ]
+        },
+        {
+            id: "unknown",
+            name: "Unknown",
+            photos: ["1hnq4p8nZP5js63ZikXJGwBWGj0tFpUhs"]
+        }
+    ];
+
+    // Global state
+    let personsData = [];     // will be loaded from localStorage or default
+
+    // DOM elements
+    const personsGrid = document.getElementById('personsGrid');
+    const modalOverlay = document.getElementById('photoModal');
+    const modalPersonNameEl = document.getElementById('modalPersonName');
+    const modalPhotosContainer = document.getElementById('modalPhotosContainer');
+    const newPhotoLinkInput = document.getElementById('newPhotoLink');
+    const addPhotoBtn = document.getElementById('addPhotoBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modalFeedback = document.getElementById('modalFeedback');
+
+    let currentPersonId = null;   // track which person's modal is open
+
+    // Helper: save current personsData to localStorage
+    function saveToLocalStorage() {
+        localStorage.setItem('gallery_persons_data', JSON.stringify(personsData));
+    }
+
+    // Load data from localStorage or use default
+    function loadPersonsData() {
+        const stored = localStorage.getItem('gallery_persons_data');
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed) && parsed.length) {
+                    personsData = parsed;
+                    return;
+                }
+            } catch(e) { console.warn(e); }
+        }
+        // deep copy default
+        personsData = defaultPersons.map(p => ({
+            id: p.id,
+            name: p.name,
+            photos: [...p.photos]
+        }));
+        saveToLocalStorage();
+    }
+
+    // Render all person cards
+    function renderCards() {
+        if (!personsGrid) return;
+        personsGrid.innerHTML = '';
+        personsData.forEach(person => {
+            const card = document.createElement('div');
+            card.className = 'person-card';
+            card.setAttribute('data-person-id', person.id);
+            
+            // first photo thumbnail (if exists else placeholder)
+            const firstPhotoId = person.photos && person.photos.length > 0 ? person.photos[0] : null;
+            const thumbnailUrl = firstPhotoId ? getDriveImageUrl(firstPhotoId) : 'https://placehold.co/400x300/e2e8f0/5b6e8c?text=No+Image';
+            
+            const photoCount = person.photos.length;
+            
+            card.innerHTML = `
+                <img class="card-img" src="${thumbnailUrl}" alt="${person.name}" loading="lazy" onerror="this.src='https://placehold.co/400x300/dce5ef/7b8c9e?text=📷+Preview+Error'">
+                <div class="card-info">
+                    <h3>${escapeHtml(person.name)}</h3>
+                    <div class="photo-badge">📸 ${photoCount} ${photoCount === 1 ? 'photo' : 'photos'}</div>
+                </div>
+            `;
+            card.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openPersonModal(person.id);
+            });
+            personsGrid.appendChild(card);
+        });
+    }
+
+    // simple escape to avoid injection
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // Open modal for specific person and display photos
+    function openPersonModal(personId) {
+        const person = personsData.find(p => p.id === personId);
+        if (!person) return;
+        currentPersonId = personId;
+        modalPersonNameEl.textContent = person.name;
+        refreshModalPhotos(personId);
+        // clear feedback & input
+        newPhotoLinkInput.value = '';
+        modalFeedback.innerHTML = '';
+        modalOverlay.classList.add('active');
+    }
+
+    // Refresh modal content (photos grid) for current person
+    function refreshModalPhotos(personId) {
+        const person = personsData.find(p => p.id === personId);
+        if (!person) return;
+        
+        modalPhotosContainer.innerHTML = '';
+        const photos = person.photos;
+        
+        if (!photos.length) {
+            modalPhotosContainer.innerHTML = `<div class="empty-photos">✨ No photos yet. Add the first one above! ✨</div>`;
+            return;
+        }
+        
+        photos.forEach(photoId => {
+            const imgUrl = getDriveImageUrl(photoId);
+            const photoDiv = document.createElement('div');
+            photoDiv.className = 'photo-item';
+            const img = document.createElement('img');
+            img.src = imgUrl;
+            img.alt = `${person.name} photo`;
+            img.loading = 'lazy';
+            img.onerror = function() {
+                this.onerror = null;
+                this.src = 'https://placehold.co/400x300/e2e8f0/9aaebf?text=⚠️+Load+Failed';
+            };
+            photoDiv.appendChild(img);
+            modalPhotosContainer.appendChild(photoDiv);
+        });
+    }
+    
+    // Add new photo to a person (by personId) from a google drive link
+    function addPhotoToPerson(personId, driveLink) {
+        if (!driveLink || driveLink.trim() === '') {
+            return { success: false, message: '❌ Please paste a Google Drive link.' };
+        }
+        
+        const fileId = extractDriveFileId(driveLink.trim());
+        if (!fileId) {
+            return { success: false, message: '⚠️ Invalid Google Drive link. Could not extract file ID. Example: https://drive.google.com/file/d/FILE_ID/view' };
+        }
+        
+        const personIndex = personsData.findIndex(p => p.id === personId);
+        if (personIndex === -1) return { success: false, message: 'Person not found' };
+        
+        // Check if photo already exists (avoid duplicates)
+        if (personsData[personIndex].photos.includes(fileId)) {
+            return { success: false, message: '⏳ This photo is already in the collection!' };
+        }
+        
+        // add new photo id
+        personsData[personIndex].photos.push(fileId);
+        saveToLocalStorage();
+        
+        // If current modal is open for same person, refresh photos grid
+        if (currentPersonId === personId) {
+            refreshModalPhotos(personId);
+        }
+        // Re-render cards to update badge count & thumbnail if first photo changed? thumbnail stays first photo anyway
+        renderCards();
+        
+        return { success: true, message: '✅ Photo added successfully! Gallery updated.' };
+    }
+    
+    // Event: add photo from modal (uses currentPersonId)
+    function handleAddPhoto() {
+        if (!currentPersonId) {
+            modalFeedback.innerHTML = '<span class="feedback-msg error-msg">⚠️ No person selected.</span>';
+            return;
+        }
+        const link = newPhotoLinkInput.value.trim();
+        const result = addPhotoToPerson(currentPersonId, link);
+        if (result.success) {
+            modalFeedback.innerHTML = `<span class="feedback-msg">${result.message}</span>`;
+            newPhotoLinkInput.value = '';
+            // auto clear feedback after 2.5 seconds
+            setTimeout(() => {
+                if (modalFeedback.innerHTML.includes(result.message)) modalFeedback.innerHTML = '';
+            }, 2500);
+        } else {
+            modalFeedback.innerHTML = `<span class="feedback-msg error-msg">${result.message}</span>`;
+            setTimeout(() => {
+                if (modalFeedback.innerHTML.includes(result.message)) modalFeedback.innerHTML = '';
+            }, 2800);
+        }
+    }
+    
+    // close modal
+    function closeModal() {
+        modalOverlay.classList.remove('active');
+        currentPersonId = null;
+        modalFeedback.innerHTML = '';
+        newPhotoLinkInput.value = '';
+    }
+    
+    // Click outside modal overlay to close
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeModal();
+    });
+    
+    closeModalBtn.addEventListener('click', closeModal);
+    addPhotoBtn.addEventListener('click', handleAddPhoto);
+    // optional: press enter in input field to add
+    newPhotoLinkInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAddPhoto();
+        }
+    });
+    
+    // initial load and render
+    loadPersonsData();
+    renderCards();
+    
+    // If you want to sync any external update after manual add, done
+    // additionally handle edge case: if any thumbnail fails globally, card images use onerror.
+    // Provide dynamic resize safety
+    
+    // Bonus: Support for customizing person name? Not required, but fine.
+    // Additional note: Shubham already has two photos, but spec says "others gas only one" but we follow data accuracy: Shubham has 2 from given links.
+    // All functionality works: add unlimited photos for ANY person.
+    // Manual test for Jagwani sir -> only 1 initial, can add.
+    // Aman -> 3 initial, can add more.
+    // Unknown -> 1 initial.
+    // All storage persistent.
+    
+    // Also provide console debug free.
+    console.log("✅ Gallery ready | Click cards to view & add new Google Drive images");
+</script>
+</body>
+</html>
