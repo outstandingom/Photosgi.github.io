@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Photo Gallery · View & Add Drive Images</title>
+    <title>Photo Gallery · Direct Drive Download</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: system-ui, 'Segoe UI', 'Inter', 'Poppins', sans-serif;
+            font-family: system-ui, 'Segoe UI', 'Inter', -apple-system, sans-serif;
         }
 
         body {
-            background: linear-gradient(145deg, #f5f7fb 0%, #e9eef4 100%);
+            background: linear-gradient(145deg, #f4f8fe 0%, #eef2f7 100%);
             min-height: 100vh;
             padding: 2rem 1.5rem;
         }
@@ -30,21 +30,22 @@
 
         .gallery-header h1 {
             font-size: 2.3rem;
-            background: linear-gradient(135deg, #1e3c4c, #2b5e7e);
+            background: linear-gradient(135deg, #1f3e4c, #2b5f82);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
+            letter-spacing: -0.5px;
         }
 
         .notice {
-            background: #fff3e0;
+            background: #fff2df;
             border-left: 5px solid #f0a500;
-            padding: 10px 18px;
-            border-radius: 20px;
-            max-width: 700px;
+            padding: 8px 18px;
+            border-radius: 30px;
+            max-width: 750px;
             margin: 1rem auto;
             font-size: 0.85rem;
-            color: #8a6e2b;
+            color: #7a621f;
             text-align: left;
             display: inline-block;
         }
@@ -60,9 +61,9 @@
         .person-card {
             background: white;
             border-radius: 2rem;
-            width: 260px;
+            width: 270px;
             overflow: hidden;
-            box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 18px 32px -12px rgba(0, 0, 0, 0.12);
             transition: transform 0.25s, box-shadow 0.2s;
             cursor: pointer;
             border: 1px solid rgba(0,0,0,0.05);
@@ -70,31 +71,31 @@
 
         .person-card:hover {
             transform: translateY(-6px);
-            box-shadow: 0 25px 35px -14px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 24px 38px -14px rgba(0, 0, 0, 0.2);
         }
 
         .card-img {
             width: 100%;
             height: 230px;
-            background: #d9e2ec;
+            background: #dae2ec;
             object-fit: cover;
             display: block;
         }
 
         .card-info {
-            padding: 1rem 1rem 1.2rem;
+            padding: 1rem 1rem 1.3rem;
             text-align: center;
         }
 
         .card-info h3 {
-            font-size: 1.45rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: #1e3b4a;
+            color: #1f3f50;
         }
 
         .photo-badge {
             background: #eef2f7;
-            padding: 0.2rem 1rem;
+            padding: 0.25rem 1rem;
             border-radius: 40px;
             font-size: 0.8rem;
             font-weight: 600;
@@ -110,7 +111,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(10, 20, 28, 0.85);
+            background: rgba(8, 20, 30, 0.85);
             backdrop-filter: blur(5px);
             display: flex;
             align-items: center;
@@ -130,7 +131,7 @@
             background: white;
             border-radius: 2rem;
             width: 90%;
-            max-width: 900px;
+            max-width: 950px;
             max-height: 85vh;
             overflow-y: auto;
             padding: 1.5rem 1.8rem;
@@ -148,8 +149,9 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid #eef2f8;
-            padding-bottom: 0.6rem;
+            padding-bottom: 0.7rem;
             margin-bottom: 1.2rem;
+            flex-wrap: wrap;
         }
 
         .modal-header h2 {
@@ -165,6 +167,7 @@
             cursor: pointer;
             color: #7f8c9a;
             transition: 0.1s;
+            line-height: 1;
         }
 
         .close-modal:hover {
@@ -173,9 +176,9 @@
 
         .photos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-            gap: 1rem;
-            margin: 1.5rem 0;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.2rem;
+            margin: 1.8rem 0;
         }
 
         .photo-item {
@@ -183,18 +186,29 @@
             border-radius: 1.2rem;
             overflow: hidden;
             aspect-ratio: 1 / 1;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.15s;
+            cursor: pointer;
+        }
+
+        .photo-item:hover {
+            transform: scale(1.01);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
 
         .photo-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.2s;
+            display: block;
+            pointer-events: none; /* anchor wraps it */
         }
 
-        .photo-item:hover img {
-            transform: scale(1.02);
+        .drive-link-wrapper {
+            display: block;
+            width: 100%;
+            height: 100%;
+            text-decoration: none;
         }
 
         .empty-photos {
@@ -216,6 +230,9 @@
             font-weight: 600;
             margin-bottom: 0.7rem;
             color: #1e4a6e;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .link-input-group {
@@ -231,13 +248,19 @@
             border: 1px solid #cbdae6;
             background: white;
             font-size: 0.9rem;
+            outline: none;
+        }
+
+        .link-input-group input:focus {
+            border-color: #2c7cb6;
+            box-shadow: 0 0 0 3px rgba(44,124,182,0.2);
         }
 
         .add-btn {
             background: #2c7cb6;
             color: white;
             border: none;
-            padding: 0 24px;
+            padding: 0 28px;
             border-radius: 60px;
             font-weight: 600;
             cursor: pointer;
@@ -246,6 +269,7 @@
 
         .add-btn:hover {
             background: #1f6395;
+            transform: scale(0.97);
         }
 
         .drive-tip {
@@ -266,7 +290,7 @@
 
         @media (max-width: 600px) {
             .modal-container { padding: 1rem; }
-            .photos-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+            .photos-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
         }
     </style>
 </head>
@@ -274,16 +298,15 @@
 
 <div class="container">
     <div class="gallery-header">
-        <h1>📷  Memory Wall · Drive Gallery</h1>
+        <h1>📸  Drive Gallery · Click photo to open Drive</h1>
         <div class="notice">
-            ⚠️ <strong>Google Drive visibility fix</strong> — Make sure each image is shared: 
-            <span style="background:#fff1ce;">"Anyone with the link can view"</span>. 
-            <br>✅ If you see broken image, right-click link → Share → change to "Anyone with link".
+            🔗 <strong>Click any image inside the modal</strong> → redirects to Google Drive file page (download / view original).
+            <br>➕ Add more Drive links for each person.
         </div>
     </div>
 
     <div id="personsGrid" class="persons-grid"></div>
-    <footer>🔗 Click any person → add more Google Drive image links → instantly visible</footer>
+    <footer>✨ Cards show first photo. Click card → see all photos. Click any photo → open Drive for download.</footer>
 </div>
 
 <!-- MODAL -->
@@ -295,7 +318,7 @@
         </div>
         <div id="modalPhotosContainer" class="photos-grid"></div>
         <div class="add-photo-section">
-            <h4>➕ Add new photo (Google Drive link)</h4>
+            <h4>➕ Add new Google Drive photo</h4>
             <div class="link-input-group">
                 <input type="text" id="newPhotoLink" placeholder="Paste Google Drive share link ..." autocomplete="off">
                 <button id="addPhotoBtn" class="add-btn">➕ Add</button>
@@ -303,7 +326,7 @@
             <div id="modalFeedback" style="margin: 8px 0 0;"></div>
             <div class="drive-tip">
                 💡 Tip: Paste any Drive link like <code>https://drive.google.com/file/d/FILE_ID/view</code><br>
-                🔒 <strong>Important:</strong> Ensure link sharing is ON → "Anyone with the link can view" for images to appear.
+                ✅ <strong>Clicking added photos will open Drive</strong> where you can download.
             </div>
         </div>
     </div>
@@ -314,70 +337,43 @@
     function extractDriveFileId(url) {
         if (!url || typeof url !== 'string') return null;
         const trimmed = url.trim();
-        // standard /file/d/ pattern
         let match = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)(?:\/|$|\?)/);
         if (match && match[1]) return match[1];
-        // open?id= pattern
         match = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
         if (match && match[1]) return match[1];
-        // if only raw ID given (like 25+ chars)
         if (/^[a-zA-Z0-9_-]{25,}$/.test(trimmed)) return trimmed;
         return null;
     }
 
-    // ---------- Improved Google Drive Image URL (using thumbnail + fallback) ----------
-    // Method: use "thumbnail" API (works best for embedded images when shared publicly)
-    // Fallback: uc?export=view if needed
-    function getDriveImageUrl(fileId, size = 800) {
-        if (!fileId) return '';
-        // Thumbnail method (reliable for images when shared)
-        // Note: Google's thumbnail service works for images with public access.
-        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w${size}`;
+    // Build the actual Google Drive file page link (for download/opening)
+    function getDriveFileUrl(fileId) {
+        if (!fileId) return '#';
+        return `https://drive.google.com/file/d/${fileId}/view`;
     }
-    
-    // Alternative full view (as backup if thumbnail fails, but we will use onerror fallback)
-    // But thumbnail usually works if shared.
 
-    // ---------- Person Data (initial from given drive links) ----------
+    // For thumbnail preview (optional, but still used for display)
+    function getThumbnailUrl(fileId) {
+        if (!fileId) return '';
+        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`;
+    }
+
+    // ---------- Person Data (initial from given links) ----------
     const defaultPersons = [
-        {
-            id: "jagwani",
-            name: "Jagwani Sir",
-            photos: ["1yq4n2BTFDEDM0zBLXnyfCpkDpfwMmMQ7"]
-        },
-        {
-            id: "aman",
-            name: "Aman",
-            photos: [
-                "15TnhAjU1xXl7bY0f47mugwzotRuyLHKC",
-                "1G_ASIGCMyN4lgYzrKWO-I8vbW18BOOBy",
-                "1lKoNFj5s3c16d87xKWhmg85czkNlnnqJ"
-            ]
-        },
-        {
-            id: "shubham",
-            name: "Shubham",
-            photos: [
-                "1vEgbA006uDEYvY3KpvRf0f5nl6gGmu7a",
-                "1L_dXPB-2c_vH4HeUnUhNNMhJPXUc5_GP"
-            ]
-        },
-        {
-            id: "unknown",
-            name: "Unknown",
-            photos: ["1hnq4p8nZP5js63ZikXJGwBWGj0tFpUhs"]
-        }
+        { id: "jagwani", name: "Jagwani Sir", photos: ["1yq4n2BTFDEDM0zBLXnyfCpkDpfwMmMQ7"] },
+        { id: "aman", name: "Aman", photos: ["15TnhAjU1xXl7bY0f47mugwzotRuyLHKC", "1G_ASIGCMyN4lgYzrKWO-I8vbW18BOOBy", "1lKoNFj5s3c16d87xKWhmg85czkNlnnqJ"] },
+        { id: "shubham", name: "Shubham", photos: ["1vEgbA006uDEYvY3KpvRf0f5nl6gGmu7a", "1L_dXPB-2c_vH4HeUnUhNNMhJPXUc5_GP"] },
+        { id: "unknown", name: "Unknown", photos: ["1hnq4p8nZP5js63ZikXJGwBWGj0tFpUhs"] }
     ];
 
     let personsData = [];
 
     // ---------- Storage ----------
     function saveToLocal() {
-        localStorage.setItem('drive_gallery_data', JSON.stringify(personsData));
+        localStorage.setItem('drive_gallery_v2', JSON.stringify(personsData));
     }
 
     function loadData() {
-        const stored = localStorage.getItem('drive_gallery_data');
+        const stored = localStorage.getItem('drive_gallery_v2');
         if (stored) {
             try {
                 const parsed = JSON.parse(stored);
@@ -395,7 +391,16 @@
         saveToLocal();
     }
 
-    // ---------- Render Cards ----------
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // ---------- Render Person Cards ----------
     function renderCards() {
         const grid = document.getElementById('personsGrid');
         if (!grid) return;
@@ -403,12 +408,12 @@
         personsData.forEach(person => {
             const card = document.createElement('div');
             card.className = 'person-card';
-            const firstPhotoId = person.photos && person.photos.length > 0 ? person.photos[0] : null;
-            let thumbUrl = firstPhotoId ? getDriveImageUrl(firstPhotoId, 400) : '';
+            const firstPhotoId = person.photos.length ? person.photos[0] : null;
+            const thumbUrl = firstPhotoId ? getThumbnailUrl(firstPhotoId) : '';
             const photoCount = person.photos.length;
             card.innerHTML = `
                 <img class="card-img" src="${thumbUrl}" alt="${person.name}" 
-                     onerror="this.src='https://placehold.co/400x300/e9eef4/6b8a9e?text=⚠️+Check+sharing&font=montserrat'; this.onerror=null;">
+                     onerror="this.src='https://placehold.co/400x300/e9eef4/6b8a9e?text=📷+Preview'; this.onerror=null;">
                 <div class="card-info">
                     <h3>${escapeHtml(person.name)}</h3>
                     <div class="photo-badge">📸 ${photoCount} ${photoCount === 1 ? 'photo' : 'photos'}</div>
@@ -419,16 +424,7 @@
         });
     }
 
-    function escapeHtml(str) {
-        return str.replace(/[&<>]/g, function(m) {
-            if(m === '&') return '&amp;';
-            if(m === '<') return '&lt;';
-            if(m === '>') return '&gt;';
-            return m;
-        });
-    }
-
-    // Modal logic
+    // ---------- Modal logic ----------
     let currentPersonId = null;
     const modal = document.getElementById('photoModal');
     const modalPersonName = document.getElementById('modalPersonName');
@@ -449,43 +445,52 @@
         modal.classList.add('active');
     }
 
+    // Refresh modal: each photo is clickable -> opens Google Drive file page
     function refreshModalPhotos(personId) {
         const person = personsData.find(p => p.id === personId);
         if (!person) return;
         modalPhotosContainer.innerHTML = '';
         if (!person.photos.length) {
-            modalPhotosContainer.innerHTML = `<div class="empty-photos">✨ No photos yet. Add the first image above ✨</div>`;
+            modalPhotosContainer.innerHTML = `<div class="empty-photos">✨ No photos yet. Add first image using the form above ✨</div>`;
             return;
         }
         person.photos.forEach(fileId => {
-            const imgUrl = getDriveImageUrl(fileId, 500);
+            const thumbnailUrl = getThumbnailUrl(fileId);
+            const driveFileUrl = getDriveFileUrl(fileId);
+            
             const photoDiv = document.createElement('div');
             photoDiv.className = 'photo-item';
+            
+            // anchor that opens drive link in new tab
+            const anchor = document.createElement('a');
+            anchor.href = driveFileUrl;
+            anchor.target = '_blank';
+            anchor.rel = 'noopener noreferrer';
+            anchor.className = 'drive-link-wrapper';
+            
             const img = document.createElement('img');
-            img.src = imgUrl;
-            img.alt = `${person.name} photo`;
+            img.src = thumbnailUrl;
+            img.alt = `${person.name} photo - click to open Drive`;
             img.loading = 'lazy';
-            // Show detailed error if image fails (most likely sharing issue)
             img.onerror = function() {
                 this.onerror = null;
-                this.src = 'https://placehold.co/500x500/f8d7da/c0392b?text=🔒+No+Access%0AShare+Drive+Image&font=monospace';
-                this.alt = 'Permission error: make file public';
-                // add tooltip
-                this.title = "Google Drive image not accessible. Right-click → Share → Anyone with link can view";
+                this.src = 'https://placehold.co/500x500/f8d7da/c0392b?text=⚠️+Preview+error%0AClick+to+open+Drive';
+                this.alt = 'Preview failed but click will open Drive';
             };
-            photoDiv.appendChild(img);
+            anchor.appendChild(img);
+            photoDiv.appendChild(anchor);
             modalPhotosContainer.appendChild(photoDiv);
         });
     }
 
-    // Add photo to person
+    // Add new photo to person
     function addPhotoToPerson(personId, driveLink) {
         if (!driveLink || driveLink.trim() === '') {
             return { success: false, message: '❌ Please paste a Google Drive link.' };
         }
         const fileId = extractDriveFileId(driveLink);
         if (!fileId) {
-            return { success: false, message: '⚠️ Invalid Drive link. Example: https://drive.google.com/file/d/FILE_ID/view' };
+            return { success: false, message: '⚠️ Invalid Drive link. Use format: https://drive.google.com/file/d/FILE_ID/view' };
         }
         const personIndex = personsData.findIndex(p => p.id === personId);
         if (personIndex === -1) return { success: false, message: 'Person not found' };
@@ -496,10 +501,9 @@
         
         personsData[personIndex].photos.push(fileId);
         saveToLocal();
-        // update UI
         if (currentPersonId === personId) refreshModalPhotos(personId);
-        renderCards();   // update badge count & thumbnail
-        return { success: true, message: '✅ Photo added! (make sure link is shared publicly)' };
+        renderCards();   // update badge and thumbnail
+        return { success: true, message: '✅ Photo added! Click on it to open Drive for download.' };
     }
 
     function handleAdd() {
@@ -525,18 +529,16 @@
         feedbackDiv.innerHTML = '';
     }
 
-    // Event listeners
+    // Event binding
     addBtn.addEventListener('click', handleAdd);
     closeBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
     newPhotoInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAdd(); });
 
-    // initialization
+    // Init
     loadData();
     renderCards();
-
-    // Additional: when adding, we show visible note
-    console.log("Gallery ready — Google Drive images now use thumbnail API. Ensure sharing is public.");
+    console.log("Gallery ready — click any photo in modal → opens Google Drive for download");
 </script>
 </body>
 </html>
